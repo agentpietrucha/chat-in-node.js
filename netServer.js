@@ -4,7 +4,7 @@ var sockets = [];
 
 var server = net.createServer(function(socket){
 	var number = 0;
-	var x = 0;
+	var numMessagesFromClient = 0;
 
 	sockets.push(socket);
 	var name = '';
@@ -27,13 +27,13 @@ var server = net.createServer(function(socket){
 		}
 		console.log('client:' + name + ' ' + data);
 		for(var i = 0; i < sockets.length; i++){
-			if(x === 0){
-			sockets[i].write(name + ' ' + 'joined');
-			x += 1;
+			if(numMessagesFromClient === 0){
+				sockets[i].write(name + ' ' + 'joined');
 			} else{
 				sockets[i].write(name + ': ' + data);
 			}
 		}
+		numMessagesFromClient += 1;
 	})
 	socket.on('end', function(){
 		var index = sockets.indexOf(socket);
