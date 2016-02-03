@@ -1,13 +1,20 @@
 var net = require('net');
 
 var sockets = [];
+var namesList = [];
+
+function writeAll (message) {
+	for(var i = 0; i < sockets.length; i++){
+		sockets[i].write(message);
+	}
+}
 
 var server = net.createServer(function(socket){
-	var number = 0;
+	var hasNickname = false;
 	var numMessagesFromClient = 0;
+	var name = '';
 
 	sockets.push(socket);
-	var name = '';
 	console.log('number of sockets: ' + sockets.length);
 
 	function removeWhitespace(str){
@@ -17,22 +24,25 @@ var server = net.createServer(function(socket){
 
 	socket.on('data', function(chunk){
 		var data = removeWhitespace(chunk.toString());
-		if(number === 0){
-			socket.write('Hi, ' + data );
-			number += 1;
-			name += data;
-			/*if(data === name){
-				console.log('this name is in use, choose another name');
-			}*/
+
+		while(!hasNickname) {
+			for(var i = 0; i < namesList.length; i++){
+				if (namesList[i] === data) {
+					socket.write('choose another name');
+					return;
+				}
+			}
+			hasNickname = true;
+			name = data;
+			namesList.push(name);
+			socket.write('Hi, ' + name );
 		}
 		console.log('client:' + name + ' ' + data);
-		for(var i = 0; i < sockets.length; i++){
-			if(numMessagesFromClient === 0){
-				sockets[i].write(name + ' ' + 'joined');
-			} else{
-				sockets[i].write(name + ': ' + data);
-			}
+		var message = name + ': ' + data;
+		if(numMessagesFromClient === 0){
+			message = name + ' ' + 'joined';
 		}
+		writeAll(message);
 		numMessagesFromClient += 1;
 	})
 	socket.on('end', function(){
@@ -43,15 +53,6 @@ var server = net.createServer(function(socket){
 		}
 		console.log(name + ' left the conversation');
 	})
-
-
-
-	// socket.end();
 })
 
 server.listen(8080);
-
-function type(){
-
-}
-
