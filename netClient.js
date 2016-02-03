@@ -18,8 +18,13 @@ client.on('error', function(error){
 client.on('data', function(data){
 	console.log( data.toString());
 })
+
+client.on('end', function(){
+	console.log("Server had ended his work, and went sleep. Please, don't wake him up");
+	client.end();
+})
 function type(where){
-var stdin = process.openStdin();
+	var stdin = process.openStdin();
 	stdin.addListener('data', function(data){
 		where.write(data.toString());
 	});
