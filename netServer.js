@@ -16,22 +16,23 @@ var server = net.createServer(function(socket){
 	function removeNewLines(str){
 		return str.replace(/(\r\n|\n|\r)/gm,"");
 	}
-	socket.write('gimmie you nick nigga');
+	socketWrite(socket, 'gimmie you nick nigga');
 
 	socket.on('data', function(chunk){
 		var data = trimNull(removeNewLines(chunk.toString()).trim());
 
 		if(!hasName){
 			if(namesList.indexOf(data) !== -1){
-				socket.write('choose another name');
+				socketWrite(socket, 'choose another name');
 				return;
-			} else{
-				name = data.trim();
-				socket.write('active users: ' + namesList);
-				namesList.push(name);
-				socket.write('Hi, ' + name );
-				hasName = true;
 			}
+			name = data.trim();
+			// socket.write('active users: ' + namesList);
+			// writeToThisOne(socket, 'active users: ' + namesList);
+			writeToThisOne(socketWrite(socket, 'active users: ' + namesList))
+			socketWrite(socket, 'Hi, ' + name);
+			namesList.push(name);
+			hasName = true;
 		}
 
 		console.log('client:' + name + ' ' + data);
@@ -42,9 +43,10 @@ var server = net.createServer(function(socket){
 		writeAll(message, socket);
 		numMessagesFromClient += 1;
 		// console.log('DATA FOR ' + name + ': ' + numMessagesFromClient);
-		if(data !== name){
-		chatHistory.push(data);
-		}
+		// if(data !== name){
+		// chatHistory.push(data);
+		// }
+		chatHistory.push(name + ': ' + data);
 		console.log(name + ': ' + chatHistory);
 	})
 	socket.on('end', function(){
@@ -66,7 +68,7 @@ function writeAll (message, socket) {
 		if(sockets[i] === socket){
 			continue;
 		} else{
-			sockets[i].write(message);				
+			sockets[i].write(message + '\n');				
 		}
 	}
 }
@@ -77,4 +79,16 @@ function trimNull(what) {
     return what.substr(0, index);
   }
   return what;
+}
+
+function writeToThisOne(thisone, ms){
+	for(var i = 0; i < sockets.length; i++){
+		if(sockets[i] === thisone){
+			sockets[i].write(ms);
+		} 
+	}
+}
+
+function socketWrite(socket, message){
+	socket.write(message + '\n');
 }
