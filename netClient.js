@@ -4,7 +4,6 @@ var number = 0;
 var name = '';
 
 const client = net.connect({port: 8080/*, host: address*/}, function() {
-	
 	type(client);
 });
 
@@ -16,7 +15,7 @@ client.on('error', function(error){
 	}
 })
 client.on('data', function(data){
-	console.log( data.toString());
+	process.stdout.write( data.toString());
 })
 
 client.on('end', function(){
@@ -26,6 +25,6 @@ client.on('end', function(){
 function type(where){
 	var stdin = process.openStdin();
 	stdin.addListener('data', function(data){
-		where.write(data.toString());
+		where.write(data.toString() + '\n');
 	});
 }
