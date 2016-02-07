@@ -5,6 +5,9 @@ var namesList = [];
 var chatHistory = {
 	history: [],
 	add: function(data){
+		if(chatHistory.history.length === 20){
+			chatHistory.del(0, 1);
+		}
 		chatHistory.history.push(data);
 	},
 	get: function(){
@@ -13,11 +16,6 @@ var chatHistory = {
 	del: function(where, howMany){
 		chatHistory.history.splice(where, howMany)
 	},
-	check: function(){
-		if(history.length === 21){
-			chatHistory.del(0, 1);
-		}
-	}
 }
 
 
@@ -46,7 +44,7 @@ var server = net.createServer(function(socket){
 		writeToThisOne(socketWrite(socket, 'active users: ' + namesList));
 		for(var i = 0; i < chatHistory.history.length; i++){
 			// writeToThisOne(socketWrite(socket, chatHistory[i]));
-			writeToThisOne(socketWrite(socket, chatHistory.get[i]));
+			writeToThisOne(socketWrite(socket, chatHistory.get()[i]));
 		}
 		console.log(chatHistory.history);
 		socketWrite(socket, 'Hi, ' + name);
@@ -67,7 +65,7 @@ var server = net.createServer(function(socket){
 	// if(chatHistory.length === 21){
 	// 	chatHistory.splice(0, 1);
 	// }
-	chatHistory.check;
+	// chatHistory.check();
 
 	writeAll(message, socket);
 	numMessagesFromClient += 1;
@@ -75,16 +73,14 @@ var server = net.createServer(function(socket){
 
 	})
 	socket.on('end', function(){
-		// var indexOfSocket = sockets.indexOf(socket);
 		sockets.splice(sockets.indexOf(socket), 1);
-		// var indexOfName = namesList.indexOf(name);
 		namesList.splice(namesList.indexOf(name), 1);
 		for(var i = 0; i < sockets.length; i++){
 		socketWrite(sockets[i], name + ' left the conversation')
 		}
 		console.log(name + ' left the conversation');
-	})
-})
+	});
+});
 
 server.listen(8080);
 
