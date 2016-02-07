@@ -2,7 +2,23 @@ var net = require('net');
 
 var sockets = [];
 var namesList = [];
-var chatHistory = [];
+var chatHistory = {
+	history: [],
+	add: function(data){
+		chatHistory.history.push(data);
+	},
+	get: function(){
+		return chatHistory.history;
+	},
+	del: function(where, howMany){
+		chatHistory.history.splice(where, howMany)
+	},
+	check: function(){
+		if(history.length === 21){
+			chatHistory.del(0, 1);
+		}
+	}
+}
 
 
 var server = net.createServer(function(socket){
@@ -19,38 +35,43 @@ var server = net.createServer(function(socket){
 	socketWrite(socket, 'gimmie you nick nigga');
 
 	socket.on('data', function(chunk){
-		var data = trimNull(removeNewLines(chunk.toString()).trim());
+	var data = trimNull(removeNewLines(chunk.toString()).trim());
 
-		if(!hasName){
-			if(namesList.indexOf(data) !== -1){
-				socketWrite(socket, 'choose another name');
-				return;
-			}
-			name = data.trim();
-			writeToThisOne(socketWrite(socket, 'active users: ' + namesList));
-			for(var i = 0; i < chatHistory.length; i++){
-				writeToThisOne(socketWrite(socket, chatHistory[i]));
-			}
-			console.log(chatHistory);
-			socketWrite(socket, 'Hi, ' + name);
-			namesList.push(name);
-			hasName = true;
+	if(!hasName){
+		if(namesList.indexOf(data) !== -1){
+			socketWrite(socket, 'choose another name');
+			return;
 		}
+		name = data.trim();
+		writeToThisOne(socketWrite(socket, 'active users: ' + namesList));
+		for(var i = 0; i < chatHistory.history.length; i++){
+			// writeToThisOne(socketWrite(socket, chatHistory[i]));
+			writeToThisOne(socketWrite(socket, chatHistory.get[i]));
+		}
+		console.log(chatHistory.history);
+		socketWrite(socket, 'Hi, ' + name);
+		namesList.push(name);
+		hasName = true;
+	}
 
-		console.log('client:' + name + ' ' + data);
-		var message = name + ': ' + data;
-		if(numMessagesFromClient === 0){
-			message = name + ' ' + 'joined';
-			chatHistory.push(name + ' joined');
-		} else{
-			chatHistory.push(name + ': ' + data);
-		}
-		if(chatHistory.length === 21){
-			chatHistory.splice(0, 1);
-		}
-		writeAll(message, socket);
-		numMessagesFromClient += 1;
+	console.log('client:' + name + ' ' + data);
+	var message = name + ': ' + data;
+	if(numMessagesFromClient === 0){
+		message = name + ' ' + 'joined';
+		// chatHistory.push(name + ' joined');
+		chatHistory.add(name + ' joined');
+	} else{
 		// chatHistory.push(name + ': ' + data);
+		chatHistory.add(name + ': ' + data);
+	}
+	// if(chatHistory.length === 21){
+	// 	chatHistory.splice(0, 1);
+	// }
+	chatHistory.check;
+
+	writeAll(message, socket);
+	numMessagesFromClient += 1;
+	// chatHistory.push(name + ': ' + data);
 
 	})
 	socket.on('end', function(){
@@ -78,11 +99,12 @@ function writeAll (message, socket) {
 }
 
 function trimNull(what) {
-  var index = what.indexOf('\0');
-  if (index > -1) {
-    return what.substr(0, index);
-  }
-  return what;
+  	var index = what.indexOf('\0');
+	if (index > -1) {
+    	return what.substr(0, index);
+  	} else{
+  		return what;
+  	}
 }
 
 function writeToThisOne(thisone, ms){
