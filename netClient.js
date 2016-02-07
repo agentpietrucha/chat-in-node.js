@@ -1,18 +1,19 @@
 const net = require('net');
-// var address = process.argv[2];
+var address = process.argv[2];
 var number = 0;
 var name = '';
 
-const client = net.connect({port: 8080/*, host: address*/}, function() {
+const client = net.connect({port: 8080, host: address}, function() {
 	type(client);
 });
 
 client.on('error', function(error){
-	if(error){
-		console.log("Can't connect to the server. Please, check if provided IP address is correct u fuckin nigga!");
-	} else{
-		console.log('connected. Please enjoy');
+	if(error.code === 'EHOSTUNREACH'){
+			console.log("Can't connect to the server. Please, check if provided IP address is correct u fuckin nigga!");	
+	} else if(error.code === 'ECONNREFUSED'){
+		console.log("It seems that, the server is still sleeping, after working very hard last nigh, in contrast to you, you piece of SHIT.")
 	}
+	console.log(error);
 })
 client.on('data', function(data){
 	process.stdout.write( data.toString());
