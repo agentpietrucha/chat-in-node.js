@@ -1,4 +1,5 @@
 const net = require('net');
+const chalk = require('chalk');
 
 const sockets = [];
 const namesList = [];
@@ -33,17 +34,15 @@ var server = net.createServer(function(socket){
 
 	socket.on('data', function(chunk){
 		var data = trimNull(removeNewLines(chunk.toString()).trim());
-
 		if(!hasName){
 			if(namesList.indexOf(data) !== -1){
 				socketWrite(socket, 'choose another name');
 				return;
 			}
-			name = data.trim();
+			name = chalk.white.bgBlue(data.trim());
 			writeToThisOne(socketWrite(socket, 'active users: ' + namesList));
 			var history = chatHistory.get();
 			for(var i = 0; i < history.length; i++){
-				// writeToThisOne(socketWrite(socket, chatHistory[i]));
 				writeToThisOne(socketWrite(socket, history[i]));
 			}
 			console.log(history);
@@ -52,25 +51,17 @@ var server = net.createServer(function(socket){
 			hasName = true;
 		}
 
-		console.log('client:' + name + ' ' + data);
-		var message = name + ': ' + data;
+		var coloredData = chalk.white.bgCyan(data);
+		console.log('client:' + name + ' ' + coloredData);
+		var message = name + ': ' + coloredData;
 		if(numMessagesFromClient === 0){
-			message = name + ' ' + 'joined';
-			// chatHistory.push(name + ' joined');
+			message = name + ' ' + 'joined';;
 			chatHistory.add(name + ' joined');
 		} else{
-			// chatHistory.push(name + ': ' + data);
-			chatHistory.add(name + ': ' + data);
+			chatHistory.add(name + ': ' + coloredData);
 		}
-		// if(chatHistory.length === 21){
-		// 	chatHistory.splice(0, 1);
-		// }
-		// chatHistory.check();
-
 		writeAll(message, socket);
 		numMessagesFromClient += 1;
-		// chatHistory.push(name + ': ' + data);
-
 	});
 	socket.on('end', function(){
 		sockets.splice(sockets.indexOf(socket), 1);
