@@ -18,9 +18,25 @@ const chatHistory = (function(){
 	};
 }());
 
+const nameSocketMapping = (function(){
+	var mapping = {};
+	return {
+		add: function(name, socket) {
+			mapping[name] = socket;
+		},
+		get: function(name) {
+			return mapping[name];
+		}
+	}
+}());
+
+
 var server = net.createServer(function(socket){
 	var name = '';
+	var person = '';
 	var hasName = false;
+	var asked = false;
+	var socket = socket;
 	var numMessagesFromClient = 0;
 
 	sockets.push(socket);
@@ -40,44 +56,43 @@ var server = net.createServer(function(socket){
 				return;
 			}
 			name = data.trim();
-			writeToThisOne(socketWrite(socket, 'active users: ' + namesList));
-			var history = chatHistory.get();
-			for(var i = 0; i < history.length; i++){
-				// writeToThisOne(socketWrite(socket, chatHistory[i]));
-				writeToThisOne(socketWrite(socket, history[i]));
-			}
-			console.log(history);
+			printActiveUsers(name);
 			socketWrite(socket, 'Hi, ' + name);
 			namesList.push(name);
+			nameSocketMapping.add(name, socket);
 			hasName = true;
+			socketWrite(socket, 'to which person: ');
+			return;
 		}
-
+		if(data === '--pau'){
+			printActiveUsers(name);
+			return;
+		}
+		if(!asked){
+			if(nameSocketMapping.get(data) === undefined || nameSocketMapping.get(data) === socket){
+				socketWrite(socket, 'This user wasn\'t find, try again');
+				return;
+			}
+			socketWrite(socket, 'U r now chatting with: ' + data);
+			socket = nameSocketMapping.get(data);
+			person = data;
+			asked = true;
+		}
 		console.log('client:' + name + ' ' + data);
 		var message = name + ': ' + data;
 		if(numMessagesFromClient === 0){
 			message = name + ' ' + 'joined';
-			// chatHistory.push(name + ' joined');
 			chatHistory.add(name + ' joined');
 		} else{
-			// chatHistory.push(name + ': ' + data);
 			chatHistory.add(name + ': ' + data);
 		}
-		// if(chatHistory.length === 21){
-		// 	chatHistory.splice(0, 1);
-		// }
-		// chatHistory.check();
-
-		writeAll(message, socket);
+		socket.write(message + '\n');
 		numMessagesFromClient += 1;
-		// chatHistory.push(name + ': ' + data);
-
 	});
 	socket.on('end', function(){
 		sockets.splice(sockets.indexOf(socket), 1);
 		namesList.splice(namesList.indexOf(name), 1);
-		for(var i = 0; i < sockets.length; i++){
-			socketWrite(sockets[i], name + ' left the conversation');
-		}
+		socketWrite(nameSocketMapping.get(person), name + ' left the conversation');
 		console.log(name + ' left the conversation');
 	});
 });
@@ -106,10 +121,14 @@ function writeToThisOne(thisone, ms){
 	for(var i = 0; i < sockets.length; i++){
 		if(sockets[i] === thisone){
 			sockets[i].write(ms);
-		} 
+		}
 	}
 }
 
 function socketWrite(socket, message){
 	socket.write(message + '\n');
+}
+
+function printActiveUsers(toWho){
+	socketWrite(nameSocketMapping.get(toWho), 'active users: ' + namesList);
 }
