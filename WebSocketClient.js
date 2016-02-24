@@ -11,18 +11,6 @@ var name = '';
 var activeUsers = document.querySelector('.activeUsers');
 var user = document.querySelector('.user');
 
-
-// for(var i = 0; i < activeUsers.getElementsByTagName('li').length; i++){
-// 	var a = activeUsers.getElementsByTagName('li')[i];
-// 	a.addEventListener('click', function(){
-// 		console.log('karolek jest auper');
-// 	});
-// }
-
-// activeUsers.getElementsByTagName('li')[0].addEventListener('click', function(){
-// 	console.log('hello world');
-// });
-
 activeUsers.addEventListener('click', function(e){
 	console.log(e.target.innerText);
 	recipient = e.target.innerText;
