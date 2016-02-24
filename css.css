@@ -1,0 +1,104 @@
+.container{
+	height: 340px;
+	float: left;
+	top: 19px;
+	width: 425px;
+	border: 1px solid black;
+	text-align: center;
+	position: relative;
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+.right{
+	display: block;
+	position: relative;
+	float: right;
+	clear:both;
+	margin-bottom: 34px;
+	
+}
+.left{
+	display: block;
+	position: relative;
+	float: left;
+	clear: both;
+	background-color: cyan;
+	margin-bottom: 34px;
+	
+}
+.inputContainer{
+	width: 425px;
+	height: 20px;
+	position: absolute;
+	left: 9px;
+    top: 347px;
+	right: 0;
+	display: inline-block;
+}
+.inputContainer button{
+	width: 47px;
+	height: 21px;
+}
+.textInput{
+	width: 374px;
+}
+.nicknameContainer{
+	float: left;
+	left: 25px;
+	position: relative;
+	display: inline-block;
+}
+.nicknameContainer p{
+	margin: 0;
+}
+.toWhoContainer{
+	float: left;
+	left: 50px;
+	position: relative;
+	display: none;
+}
+.activeUsers{
+	position: relative;
+	float: right;
+	display: inline-block;
+	/*left: 50px;/*/
+	list-style: none;
+
+}
+.activeUsers li:hover{
+	cursor: pointer;
+	text-decoration: underline;
+}
+.activeUsers li{
+	margin-top: 8px;
+
+}
+
+h1{
+	position: relative;
+	float: right;
+	display: inline-block;
+}
+.withWho{
+	position: absolute;
+	display: inline-block;
+	background-color: cadetblue;
+	z-index: 99;
+	width: 425px;
+	float: left;
+	height: 27px;
+	top: 0px;
+	text-align: center; 
+	border: 1px solid black;
+}
+.user{
+	font-size: 16px;
+	margin: 5px 0;
+	display: inline-block;
+}
+.textArea{
+	height: 420px;
+	background-color: aliceblue;
+}

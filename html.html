@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chat Nigga!</title>
+	<link rel="stylesheet" type="text/css" href="./css.css">
+</head>
+<body>
+
+
+<div class="withWho">
+	<p class="user"></p>
+</div>
+<div class="container">
+	<div class="textArea">
+		<p class="right">hi</p>
+		<p class="left">hi whatsup?</p>
+		<p class="right">imma good, u?</p>
+		<p class="left">nigga</p>		
+	</div>
+</div>
+<div class="inputContainer">
+	<input id="textInput" type="text" class="textInput" placeholder="Write your message here"/><button id="messageButton">Send</button>
+</div>
+
+<div class="nicknameContainer">
+	<p>Choose your nickname</p>
+	<input id="nicknameInput" type="text" class="nicknameInput" placeholder="Your nick"/><button id="nickButton">Ok</button>
+</div>
+<!-- <div class="toWhoContainer">
+	<p>To who?</p>
+	<input id="toWhoInput" type="text" placaholder="Write here"><button id="toWhoButton">Ok</button>
+</div> -->
+
+<b><h1>Active users</h1></b>
+<ul class="activeUsers">
+</ul>
+
+<script src="./WebSocketClient.js"></script>
+</body>
+</html>
