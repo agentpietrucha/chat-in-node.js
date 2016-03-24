@@ -11,6 +11,7 @@ var name = '';
 var activeUsers = document.querySelector('.activeUsers');
 var user = document.querySelector('.user');
 var chattingUsers = document.querySelector('.chattingUsers');
+// var chattingUsers = document.querySelectorAll('.chattingUsers');
 
 function updateScroll(){
 	textArea.scrollTop = textArea.scrollHeight;
@@ -26,31 +27,29 @@ function sendMessage(){
 	sendJSON('message', recipient, textInput.value);
 	createAndInsertElement('p', 'right', textInput.value, textArea);
 	textArea.scrollTop = textArea.scrollHeight;
-	nameMessageMapping.add(name, textInput.value, recipient, 'outcoming');
+	nameMessageMapping.add(textInput.value, recipient, 'outcoming');
 	textInput.value = '';
 }
+
 var recipients = [];
 var costam = true;
-activeUsers.addEventListener('click', function(e){
+chattingUsers.addEventListener('click', function(e){
+	if(e.target.tagName !== 'P') {return;}
 	recipient = e.target.innerText;
-	recipients.push(recipient);
-	while(textArea.firstChild){
-		textArea.removeChild(textArea.firstChild);
-	}
 	sendJSON('toWho', recipient, null);
-	if(recipient !== name){
-		// while(costam){
-		user.innerHTML = recipient;
-		// for(var i = 0; i < recipients.length; i++){
-		// 	if(recipients[i] === document.querySelectorAll('.chattingUsers p')){
-		// 		return;
-		// 	} else{
-		 		createAndInsertElement('p', null, recipient, chattingUsers);	
-		// 	}
-		// }
-			// costam = false;
-		// }
-	}
+	user.innerHTML = recipient;
+	clearTextArea(recipient);
+});
+activeUsers.addEventListener('click', function(e){
+	if (e.target.tagName !== 'LI') {return;}
+	if (e.target.innerText === name) {return;}
+	recipient = e.target.innerText;
+	// if (recipients.indexOf(recipient) !== -1) { return; }
+	// recipients.push(recipient);
+	sendJSON('toWho', recipient, null);
+	user.innerHTML = recipient;
+	addRecipient(recipient);
+	clearTextArea(recipient);
 	document.querySelector('.inputContainer').style.display = 'inline-block';
 });
 nickButton.addEventListener('click', function(){
@@ -92,6 +91,7 @@ connection.onmessage = function(e){
 		while(activeUsers.firstChild){
 			activeUsers.removeChild(activeUsers.firstChild);
 		}
+		console.log("activeUsers", data.message);
 		for(var i = 0; i < data.message.length; i++){
 			createAndInsertElement('li', null, data.message[i], activeUsers);
 		}
@@ -101,49 +101,67 @@ connection.onmessage = function(e){
 	}
 	if(data.type === 'message'){
 		recipient = data.fromWho;
-		nameMessageMapping.add(recipient, data.message, recipient, 'income');
-		// nameMessageMapping.setInStorage(recipient);
-		console.log('LOCALSTORAGE', localStorage.getItem('messages'));
+		nameMessageMapping.add(data.message, recipient, 'incoming');
+		createAndInsertElement('p', 'left', data.message, textArea);
 		console.log('Message from user: ' + data.message);
 		sendJSON('toWho', recipient, null);
-		createAndInsertElement('p', 'left', data.message, textArea);
-		while(costam){
-			user.innerHTML = recipient;
-			createAndInsertElement('p', null, recipient, chattingUsers);
-			costam = false;
-		}
+		if(recipient !== user.innerHTML){clearTextArea(recipient);}
+		user.innerHTML = recipient;
+		addRecipient(recipient);
 	}
 }
+
+function addRecipient(recipient) {
+	if (recipients.indexOf(recipient) === -1){
+		recipients.push(recipient);
+		createAndInsertElement('p', null, recipient, chattingUsers);
+	}
+}
+
 connection.onerror = function(error){
 	console.log('ERROR', error);
 }
+var stopper = true;
 var nameMessageMapping = (function(){
 	var mapping = {};
+	// {karol: {
+	// 	recipient = ola,
+	// 	type: ccc
+	// 	message: [czesc]
+	// }}
+	// {
+	// 	marcysia: [
+	// 		{type: "recived", data: "czesc kochanie"},
+	// 		{type: "sent", data: "teskni;em za toba"}
+	// 	],
+	// 	ola: [],
+	// 	berni: []
+	// }
+	// var messages =ccc.get(marcysia);
+	// for (var i = messages.length - 1; i >= 0; i--) {
+	// 	messages[i].type
+	// 	messages[i].data
+	// };
+	// mapping[name] = new Object;
 	return{
-		add: function(name, message, recipient, type){
-			if(mapping[name] === undefined){
-				console.log('first if in mapping');
-				mapping[name] = new Object;
-				mapping[name].type = type;
-				mapping[name].recipient = recipient;
-				mapping[name].message = new Array;
-				mapping[name].message.push(message);
-			} else{
-				console.log('second if in mapping');
-				mapping[name].message.push(message);
+		add: function(message, recipient, type){
+			if (mapping[recipient] === undefined) {
+				mapping[recipient] = [];
 			}
-			console.log(mapping);
+			mapping[recipient].push({type: type, message: message})
+			console.log('MAPPING', mapping);
 		},
 		get: function(name){
-			return localStorage.getItem('name');
-		},
-		setInStorage: function(name){
-			localStorage.clear();
-			localStorage.setItem(name + recipient, mapping[name]);
-		},
-		getStorage: function(){
-			localStorage.getItem(name + recipient);
+			return mapping.name;
+			// return localStorage.getItem('name');
 		}
+		// setInStorage: function(name){
+		// 	// localStorage.clear();
+		// 	// localStorage.setItem(name + recipient, mapping[name]);
+		// },
+		// getStorage: function(){
+		// 	// localStorage.getItem(name + recipient);
+		// }
 	}
 }());
 function createAndInsertElement(element, clss, message, where){
@@ -151,4 +169,19 @@ function createAndInsertElement(element, clss, message, where){
 	element.classList.add(clss);
 	element.innerHTML = message;
 	where.appendChild(element);
+}
+function clearTextArea(recipient){
+	while(textArea.firstChild){
+		textArea.removeChild(textArea.firstChild);
+	}
+	var x = nameMessageMapping.get(recipient);
+	if(x.length === 0){return;}
+	console.log(x.length);
+	// for(var i = 0; i < name.length; i++){
+	// 	if(name[i].type === 'incoming'){
+	// 		createAndInsertElement('p', 'left', name[i].message, textArea);
+	// 	} else if(name[i].type === 'outcoming'){
+	// 		createAndInsertElement('p', 'right', name[i].messages, textArea);
+	// 	}
+	// }
 }
