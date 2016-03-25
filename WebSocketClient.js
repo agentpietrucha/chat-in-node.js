@@ -38,7 +38,12 @@ chattingUsers.addEventListener('click', function(e){
 	recipient = e.target.innerText;
 	sendJSON('toWho', recipient, null);
 	user.innerHTML = recipient;
-	clearTextArea(recipient);
+	if(nameMessageMapping.get(recipient) === undefined){
+		clearTextArea.clear();
+	} else{
+		console.log('WFWEWVDAGARARVAWR');
+		clearTextArea.clearAndPaste(recipient);
+	}
 });
 activeUsers.addEventListener('click', function(e){
 	if (e.target.tagName !== 'LI') {return;}
@@ -49,7 +54,9 @@ activeUsers.addEventListener('click', function(e){
 	sendJSON('toWho', recipient, null);
 	user.innerHTML = recipient;
 	addRecipient(recipient);
-	clearTextArea(recipient);
+	if(nameMessageMapping.get(recipient) === undefined){
+		clearTextArea.clear();
+	}
 	document.querySelector('.inputContainer').style.display = 'inline-block';
 });
 nickButton.addEventListener('click', function(){
@@ -100,12 +107,17 @@ connection.onmessage = function(e){
 		createAndInsertElement('h1', null, data.message, body);
 	}
 	if(data.type === 'message'){
+		updateScroll();
 		recipient = data.fromWho;
 		nameMessageMapping.add(data.message, recipient, 'incoming');
 		createAndInsertElement('p', 'left', data.message, textArea);
 		console.log('Message from user: ' + data.message);
 		sendJSON('toWho', recipient, null);
-		if(recipient !== user.innerHTML){clearTextArea(recipient);}
+		if(recipient !== user.innerHTML){
+			if(nameMessageMapping.get(recipient) !== undefined){
+				clearTextArea.clear();
+			}
+		}
 		user.innerHTML = recipient;
 		addRecipient(recipient);
 	}
@@ -170,18 +182,39 @@ function createAndInsertElement(element, clss, message, where){
 	element.innerHTML = message;
 	where.appendChild(element);
 }
-function clearTextArea(recipient){
-	while(textArea.firstChild){
-		textArea.removeChild(textArea.firstChild);
+// function clearTextArea(recipient){
+// 	while(textArea.firstChild){
+// 		textArea.removeChild(textArea.firstChild);
+// 	}
+// 	var x = nameMessageMapping.get(recipient);
+// 	console.log(x.length);
+// 	// for(var i = 0; i < name.length; i++){
+// 	// 	if(name[i].type === 'incoming'){
+// 	// 		createAndInsertElement('p', 'left', name[i].message, textArea);
+// 	// 	} else if(name[i].type === 'outcoming'){
+// 	// 		createAndInsertElement('p', 'right', name[i].messages, textArea);
+// 	// 	}
+// 	// }
+// }
+var clearTextArea = (function(){
+	return{
+		clear: function(){
+			while(textArea.firstChild){
+				textArea.removeChild(textArea.firstChild);
+			}
+		},
+		clearAndPaste: function(recipient){
+			clearTextArea.clear();
+			var x = nameMessageMapping.get(recipient);
+			console.log('LENGTH!!!!!!!!!:::::::::::', x.length);
+			for(var i = 0; i < x	.length; i++){
+				if(x[i].type === 'incoming'){
+					createAndInsertElement('p', 'left', x[i].message, textArea);
+				} else if(x[i].type === 'outcoming'){
+					createAndInsertElement('p', 'right', x[i].messages, textArea);
+				}
+			}
+
+		}
 	}
-	var x = nameMessageMapping.get(recipient);
-	if(x.length === 0){return;}
-	console.log(x.length);
-	// for(var i = 0; i < name.length; i++){
-	// 	if(name[i].type === 'incoming'){
-	// 		createAndInsertElement('p', 'left', name[i].message, textArea);
-	// 	} else if(name[i].type === 'outcoming'){
-	// 		createAndInsertElement('p', 'right', name[i].messages, textArea);
-	// 	}
-	// }
-}
+}());
